@@ -1,121 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Cycle Count Report</title>
-<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <style>
-  :root { --bg:#fafafa; --fg:#0f172a; --muted:#6b7280; --card:#ffffff; --line:#e5e7eb; }
-  body { font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--fg); margin:24px; }
-  h1 { font-size:28px; margin:0 0 16px; }
-  h2 { font-size:20px; margin:24px 0 8px; }
-  .grid { display:grid; gap:12px; }
-  .cols-3 { grid-template-columns: repeat(3, minmax(220px,1fr)); }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
-  .label { font-size:12px; color:var(--muted); }
-  .value { font-size:22px; font-weight:700; margin-top:4px; }
-  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
-  select, input, button { border:1px solid var(--line); border-radius:10px; padding:6px 10px; background:white; }
-  canvas { width:100%; height:320px; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; }
-  th { background:#f3f4f6; }
-  .caption { font-size:12px; color:var(--muted); margin-top:4px; }
-</style>
-</head>
+:root { --bg:#fafafa; --fg:#0f172a; --muted:#6b7280; --card:#ffffff; --line:#e5e7eb; }
+body { font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--fg); margin:24px; }
+h1 { font-size:28px; margin:0 0 16px; } h2 { font-size:20px; margin:24px 0 8px; }
+.grid { display:grid; gap:12px; } .cols-3 { grid-template-columns: repeat(3, minmax(220px,1fr)); }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+.label { font-size:12px; color:var(--muted); } .value { font-size:22px; font-weight:700; margin-top:4px; }
+.row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; } select, input, button { border:1px solid var(--line); border-radius:10px; padding:6px 10px; background:white; }
+canvas { width:100%; height:320px; } table { width:100%; border-collapse:collapse; font-size:13px; }
+th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; } th { background:#f3f4f6; } .caption { font-size:12px; color:var(--muted); margin-top:4px; }
+</style></head>
 <body>
-  <h1>Cycle Count Report</h1>
+<h1>Cycle Count Report</h1>
+<div class="card"><div class="row">
+  <div><span class="label">Client</span><br/><select id="fClient"><option value="">All</option></select></div>
+  <div><span class="label">Zone</span><br/><select id="fZone"><option value="">All</option></select></div>
+  <div><span class="label">Aisle</span><br/><select id="fAisle"><option value="">All</option></select></div>
+  <div><span class="label">Status</span><br/><select id="fStatus"><option value="">All</option><option>Approved</option><option>Completed</option><option>TS</option><option>Not Started</option></select></div>
+  <div><span class="label">From</span><br/><input type="date" id="fFrom"/></div>
+  <div><span class="label">To</span><br/><input type="date" id="fTo"/></div>
+  <div style="align-self:flex-end;"><button id="resetBtn">Reset</button></div>
+</div></div>
 
-  <div class="card">
-    <div class="row">
-      <div><span class="label">Client</span><br/><select id="fClient"><option value="">All</option></select></div>
-      <div><span class="label">Zone</span><br/><select id="fZone"><option value="">All</option></select></div>
-      <div><span class="label">Aisle</span><br/><select id="fAisle"><option value="">All</option></select></div>
-      <div><span class="label">Status</span><br/><select id="fStatus"><option value="">All</option><option>Approved</option><option>Completed</option><option>TS</option><option>Not Started</option></select></div>
-      <div><span class="label">From</span><br/><input type="date" id="fFrom"/></div>
-      <div><span class="label">To</span><br/><input type="date" id="fTo"/></div>
-      <div style="align-self:flex-end;"><button id="resetBtn">Reset</button></div>
-    </div>
-  </div>
+<div class="grid cols-3" style="margin-top:12px;">
+  <div class="card"><div class="label">Total Locations</div><div class="value" id="kTotal">-</div></div>
+  <div class="card"><div class="label">Completed Locations</div><div class="value" id="kCompleted">-</div></div>
+  <div class="card"><div class="label">Progress</div><div class="value" id="kProgress">-</div></div>
+  <div class="card"><div class="label">TS Locations</div><div class="value" id="kTS">-</div></div>
+  <div class="card"><div class="label">Avg Difference</div><div class="value" id="kAvgDiff">-</div></div>
+  <div class="card"><div class="label">Last Counted</div><div class="value" id="kLast">-</div></div>
+</div>
 
-  <div class="grid cols-3" style="margin-top:12px;">
-    <div class="card"><div class="label">Total Locations</div><div class="value" id="kTotal">-</div></div>
-    <div class="card"><div class="label">Completed Locations</div><div class="value" id="kCompleted">-</div></div>
-    <div class="card"><div class="label">Progress</div><div class="value" id="kProgress">-</div></div>
-    <div class="card"><div class="label">TS Locations</div><div class="value" id="kTS">-</div></div>
-    <div class="card"><div class="label">Avg Difference</div><div class="value" id="kAvgDiff">-</div></div>
-    <div class="card"><div class="label">Last Counted</div><div class="value" id="kLast">-</div></div>
-  </div>
+<div class="card" style="margin-top:12px;">
+  <h2>Progress Over Time</h2>
+  <canvas id="chartProgress"></canvas>
+  <div class="caption">Cumulative completion based on Approved/Completed.</div>
+</div>
 
-  <div class="card" style="margin-top:12px;">
-    <h2>Progress Over Time</h2>
-    <canvas id="chartProgress"></canvas>
-    <div class="caption">Cumulative completion based on Approved/Completed.</div>
-  </div>
+<div class="card" style="margin-top:12px;">
+  <h2>Zone + Aisle Completion (Top 20)</h2>
+  <canvas id="chartZone"></canvas>
+</div>
 
-  <div class="card" style="margin-top:12px;">
-    <h2>Zone + Aisle Completion (Top 20)</h2>
-    <canvas id="chartZone"></canvas>
-  </div>
+<div class="card" style="margin-top:12px;">
+  <h2>Location Type Completion</h2>
+  <canvas id="chartType"></canvas>
+</div>
 
-  <div class="card" style="margin-top:12px;">
-    <h2>Location Type Completion</h2>
-    <canvas id="chartType"></canvas>
-  </div>
+<div class="card" style="margin-top:12px;">
+  <h2>TS — Top 10 SKU by Avg Abs Difference</h2>
+  <canvas id="chartTS"></canvas>
+</div>
 
-  <div class="card" style="margin-top:12px;">
-    <h2>TS — Top 10 SKU by Avg Abs Difference</h2>
-    <canvas id="chartTS"></canvas>
-  </div>
-
-  <div class="card" style="margin-top:12px;">
-    <h2>TS Detail (sample up to 200 rows)</h2>
-    <table id="tblTS"><thead><tr>
-      <th>Location</th><th>Client</th><th>SKU</th><th>WMS</th><th>Counted</th><th>Diff</th><th>Date</th><th>Zone</th><th>Aisle</th><th>Type</th>
-    </tr></thead><tbody></tbody></table>
-  </div>
+<div class="card" style="margin-top:12px;">
+  <h2>TS Detail (sample up to 200 rows)</h2>
+  <table id="tblTS"><thead><tr>
+    <th>Location</th><th>Client</th><th>SKU</th><th>WMS</th><th>Counted</th><th>Diff</th><th>Date</th><th>Zone</th><th>Aisle</th><th>Type</th>
+  </tr></thead><tbody></tbody></table>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 <script>
-let DATA = null;
-async function loadData() {
-  const res = await fetch('data.json');
-  DATA = await res.json();
+let DATA=null, chartProgress=null, chartZone=null, chartType=null, chartTS=null;
+
+async function loadData(){
+  const res = await fetch('data.json'); DATA = await res.json();
   // populate filters
   const fClient = document.getElementById('fClient');
-  DATA.filters.clients.forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; fClient.appendChild(o); });
+  DATA.filters.clients.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; fClient.appendChild(o); });
   const fZone = document.getElementById('fZone');
-  DATA.filters.zones.forEach(z => { const o=document.createElement('option'); o.value=z; o.textContent=z; fZone.appendChild(o); });
+  DATA.filters.zones.forEach(z=>{ const o=document.createElement('option'); o.value=z; o.textContent=z; fZone.appendChild(o); });
   const fAisle = document.getElementById('fAisle');
-  DATA.filters.aisles.forEach(a => { const o=document.createElement('option'); o.value=a; o.textContent=a; fAisle.appendChild(o); });
+  DATA.filters.aisles.forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; fAisle.appendChild(o); });
   document.getElementById('kTotal').textContent = DATA.kpis.total_locations.toLocaleString();
   document.getElementById('kLast').textContent = DATA.kpis.last_counted;
-
-  setupListeners();
-  recompute();
+  setupListeners(); recompute();
 }
 
-let chartProgress=null, chartZone=null, chartType=null, chartTS=null;
-
 function setupListeners(){
-  ['fClient','fZone','fAisle','fStatus','fFrom','fTo'].forEach(id => {
-    document.getElementById(id).addEventListener('change', recompute);
-  });
-  document.getElementById('resetBtn').addEventListener('click', ()=>{
-    ['fClient','fZone','fAisle','fStatus','fFrom','fTo'].forEach(id=>document.getElementById(id).value='');
-    recompute();
-  });
+  ['fClient','fZone','fAisle','fStatus','fFrom','fTo'].forEach(id=>document.getElementById(id).addEventListener('change', recompute));
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ ['fClient','fZone','fAisle','fStatus','fFrom','fTo'].forEach(id=>document.getElementById(id).value=''); recompute(); });
 }
 
 function passesFilters(r){
-  const fC = document.getElementById('fClient').value;
-  const fZ = document.getElementById('fZone').value;
-  const fA = document.getElementById('fAisle').value;
-  const fS = document.getElementById('fStatus').value;
-  const fFrom = document.getElementById('fFrom').value;
-  const fTo = document.getElementById('fTo').value;
+  const fC = fClient.value, fZ = fZone.value, fA = fAisle.value, fS = fStatus.value, fFrom = fFromEl.value, fTo = fToEl.value;
   if(fC && r.client !== fC) return false;
   if(fZ && (String(r.zone).padStart(2,'0') !== fZ)) return false;
   if(fA && (String(r.aisle).padStart(2,'0') !== fA)) return false;
@@ -124,125 +95,47 @@ function passesFilters(r){
   if(fTo && (!r.counted_at || r.counted_at > fTo)) return false;
   return true;
 }
+const fClient=document.getElementById('fClient'), fZone=document.getElementById('fZone'), fAisle=document.getElementById('fAisle'), fStatus=document.getElementById('fStatus'), fFromEl=document.getElementById('fFrom'), fToEl=document.getElementById('fTo');
 
 function recompute(){
   const recs = DATA.records.filter(passesFilters);
-
   // latest status per location within filter window
   const latestMap = new Map();
-  recs.forEach(r=>{
-    const d = r.counted_at || '';
-    const key = r.location_no;
-    const prev = latestMap.get(key);
-    if(!prev || d > prev.date) latestMap.set(key, {status:r.status, date:d, zone:r.zone, aisle:r.aisle, type:r.location_type});
-  });
-
+  recs.forEach(r=>{ const d=r.counted_at||''; const key=r.location_no; const prev=latestMap.get(key); if(!prev||d>prev.date) latestMap.set(key,{status:r.status,date:d,zone:r.zone,aisle:r.aisle,type:r.location_type}); });
   const total = DATA.kpis.total_locations;
   const completed = Array.from(latestMap.values()).filter(v=>['approved','completed','Approved','Completed'].includes(v.status)).length;
   const tsCount = Array.from(latestMap.values()).filter(v=>['ts','TS'].includes(v.status)).length;
   const diffs = recs.map(r=>Number(r.difference)).filter(x=>!isNaN(x));
-  const avgDiff = diffs.length ? (diffs.reduce((a,b)=>a+b,0)/diffs.length) : NaN;
-
+  const avgDiff = diffs.length? diffs.reduce((a,b)=>a+b,0)/diffs.length : NaN;
   document.getElementById('kCompleted').textContent = completed.toLocaleString();
   document.getElementById('kTS').textContent = tsCount.toLocaleString();
   document.getElementById('kAvgDiff').textContent = isNaN(avgDiff)?'-':avgDiff.toFixed(2);
-  const progressPct = total ? (completed/total*100) : 0;
-  document.getElementById('kProgress').textContent = progressPct.toFixed(1) + '%';
-
+  const progressPct = total? (completed/total*100) : 0; document.getElementById('kProgress').textContent = progressPct.toFixed(1)+'%';
   // Progress over time
-  const daily = new Map();
-  recs.forEach(r=>{
-    if(!r.counted_at) return;
-    const d = r.counted_at;
-    if(!daily.has(d)) daily.set(d, new Map());
-    const m = daily.get(d); m.set(r.location_no, r.status);
-  });
-  const dates = Array.from(daily.keys()).sort();
-  let cumLatest = new Map();
-  const progress = dates.map(d=>{
-    const dayMap = daily.get(d);
-    dayMap.forEach((st,loc)=>{ cumLatest.set(loc, st); });
-    const comp = Array.from(cumLatest.values()).filter(s=>['approved','completed','Approved','Completed'].includes(s)).length;
-    return {x:d, y: total ? (comp/total*100) : 0};
-  });
-  drawLine('chartProgress', progress, 'Completion %', (c)=>{chartProgress=c;});
-
-  // Zone+Aisle (top 20) using overall latest, restricted by zone/aisle filter if set
-  const zaMap = new Map();
-  DATA.latest.forEach(row=>{
-    if(document.getElementById('fZone').value && String(row.zone).padStart(2,'0')!==document.getElementById('fZone').value) return;
-    if(document.getElementById('fAisle').value && String(row.aisle).padStart(2,'0')!==document.getElementById('fAisle').value) return;
-    const key = String(row.zone).padStart(2,'0')+'-'+String(row.aisle).padStart(2,'0');
-    if(!zaMap.has(key)) zaMap.set(key, {total:0, completed:0});
-    const obj = zaMap.get(key);
-    obj.total += 1;
-    if(['approved','completed','Approved','Completed'].includes(row.status)) obj.completed += 1;
-  });
-  const zaArr = Array.from(zaMap.entries()).map(([k,v])=>({label:k, pct: v.total? (v.completed/v.total*100):0, total:v.total}));
-  zaArr.sort((a,b)=> b.total - a.total || a.label.localeCompare(b.label));
-  const top20 = zaArr.slice(0,20);
-  drawBar('chartZone', top20.map(x=>x.label), top20.map(x=>x.pct), 'Completion %', (c)=>{chartZone=c;});
-
-  // Location type completion
-  const typeMap = new Map();
-  DATA.latest.forEach(row=>{
-    const t = row.location_type || 'Unknown';
-    if(document.getElementById('fZone').value && String(row.zone).padStart(2,'0')!==document.getElementById('fZone').value) return;
-    if(document.getElementById('fAisle').value && String(row.aisle).padStart(2,'0')!==document.getElementById('fAisle').value) return;
-    if(!typeMap.has(t)) typeMap.set(t, {total:0, completed:0});
-    const obj = typeMap.get(t);
-    obj.total += 1;
-    if(['approved','completed','Approved','Completed'].includes(row.status)) obj.completed += 1;
-  });
-  const tLabels = Array.from(typeMap.keys());
-  const tPct = Array.from(typeMap.values()).map(v=> v.total? (v.completed/v.total*100):0);
+  const daily = new Map(); recs.forEach(r=>{ if(!r.counted_at) return; const d=r.counted_at; if(!daily.has(d)) daily.set(d,new Map()); daily.get(d).set(r.location_no,r.status); });
+  const dates = Array.from(daily.keys()).sort(); let cumLatest=new Map();
+  const progress = dates.map(d=>{ const m=daily.get(d); m.forEach((st,loc)=>{cumLatest.set(loc,st)}); const comp=Array.from(cumLatest.values()).filter(s=>['approved','completed','Approved','Completed'].includes(s)).length; return {x:d,y: total? (comp/total*100):0}; });
+  drawLine('chartProgress', (progress && progress.length)? progress : [{x:new Date().toISOString().slice(0,10), y:0}], 'Completion %', (c)=>{chartProgress=c;});
+  // Zone+Aisle
+  const zaMap=new Map(); DATA.latest.forEach(row=>{ if(fZone.value && String(row.zone).padStart(2,'0')!==fZone.value) return; if(fAisle.value && String(row.aisle).padStart(2,'0')!==fAisle.value) return; const key=String(row.zone).padStart(2,'0')+'-'+String(row.aisle).padStart(2,'0'); if(!zaMap.has(key)) zaMap.set(key,{total:0,completed:0}); const obj=zaMap.get(key); obj.total+=1; if(['approved','completed','Approved','Completed'].includes(row.status)) obj.completed+=1; });
+  const zaArr = Array.from(zaMap.entries()).map(([k,v])=>({label:k,pct:v.total?(v.completed/v.total*100):0,total:v.total})).sort((a,b)=> b.total-a.total || a.label.localeCompare(b.label)).slice(0,20);
+  drawBar('chartZone', zaArr.map(x=>x.label), zaArr.map(x=>x.pct), 'Completion %', (c)=>{chartZone=c;});
+  // Location type
+  const typeMap=new Map(); DATA.latest.forEach(row=>{ const t=row.location_type||'Unknown'; if(fZone.value && String(row.zone).padStart(2,'0')!==fZone.value) return; if(fAisle.value && String(row.aisle).padStart(2,'0')!==fAisle.value) return; if(!typeMap.has(t)) typeMap.set(t,{total:0,completed:0}); const obj=typeMap.get(t); obj.total+=1; if(['approved','completed','Approved','Completed'].includes(row.status)) obj.completed+=1; });
+  const tLabels = Array.from(typeMap.keys()); const tPct = Array.from(typeMap.values()).map(v=> v.total? (v.completed/v.total*100):0);
   drawBar('chartType', tLabels, tPct, 'Completion %', (c)=>{chartType=c;});
-
   // TS top10
-  const tsRows = recs.filter(r=>r.status==='TS');
-  const bySku = new Map();
-  tsRows.forEach(r=>{
-    const k=r.sku||'(blank)'; const d=Number(r.difference)||0;
-    const cur = bySku.get(k)||{sum:0,cnt:0};
-    cur.sum+=d; cur.cnt+=1; bySku.set(k,cur);
-  });
-  const tsArr = Array.from(bySku.entries()).map(([sku,v])=>({sku, avg:v.cnt? v.sum/v.cnt:0})).sort((a,b)=>b.avg-a.avg).slice(0,10);
+  const tsRows = recs.filter(r=>r.status==='TS'); const bySku=new Map();
+  tsRows.forEach(r=>{ const k=r.sku||'(blank)'; const d=Number(r.difference)||0; const cur=bySku.get(k)||{sum:0,cnt:0}; cur.sum+=d; cur.cnt+=1; bySku.set(k,cur); });
+  const tsArr=Array.from(bySku.entries()).map(([sku,v])=>({sku,avg:v.cnt? v.sum/v.cnt:0})).sort((a,b)=>b.avg-a.avg).slice(0,10);
   drawBar('chartTS', tsArr.map(x=>String(x.sku)), tsArr.map(x=>x.avg), 'Avg Abs Diff', (c)=>{chartTS=c;});
-
   // TS table
-  const tbody = document.querySelector('#tblTS tbody');
-  tbody.innerHTML = '';
-  tsRows.slice(0,200).forEach(r=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML = `<td>${r.location_no}</td><td>${r.client}</td><td>${r.sku}</td><td>${r.wms_qty}</td><td>${r.counted_qty}</td><td>${r.difference}</td><td>${r.counted_at}</td><td>${String(r.zone).padStart(2,'0')}</td><td>${String(r.aisle).padStart(2,'0')}</td><td>${r.location_type}</td>`;
-    tbody.appendChild(tr);
-  });
-
+  const tbody=document.querySelector('#tblTS tbody'); tbody.innerHTML=''; tsRows.slice(0,200).forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${r.location_no}</td><td>${r.client}</td><td>${r.sku}</td><td>${r.wms_qty}</td><td>${r.counted_qty}</td><td>${r.difference}</td><td>${r.counted_at}</td><td>${String(r.zone).padStart(2,'0')}</td><td>${String(r.aisle).padStart(2,'0')}</td><td>${r.location_type}</td>`; tbody.appendChild(tr); });
 }
 
-function drawLine(id, points, label, sink){
-  if(window[id]) window[id].destroy?.();
-  const ctx = document.getElementById(id).getContext('2d');
-  const chart = new Chart(ctx, {
-    type:'line',
-    data:{ datasets:[{ label, data:points, tension:.25 }] },
-    options:{ parsing:false, scales:{ x: { type:'time', time:{unit:'day'} }, y:{ beginAtZero:true } } }
-  });
-  sink(chart);
-}
-
-function drawBar(id, labels, values, label, sink){
-  if(window[id]) window[id].destroy?.();
-  const ctx = document.getElementById(id).getContext('2d');
-  const chart = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[{ label, data:values }] },
-    options:{ scales:{ y:{ beginAtZero:true, ticks:{ callback:(v)=>v+'%' } } } }
-  });
-  sink(chart);
-}
+function drawLine(id, points, label, sink){ if(window[id]) window[id].destroy?.(); const ctx=document.getElementById(id).getContext('2d'); const chart=new Chart(ctx,{ type:'line', data:{ datasets:[{ label, data:points, tension:.25 }] }, options:{ parsing:false, scales:{ x:{ type:'time', time:{unit:'day'} }, y:{ beginAtZero:true } } } }); sink(chart); }
+function drawBar(id, labels, values, label, sink){ if(window[id]) window[id].destroy?.(); const ctx=document.getElementById(id).getContext('2d'); const chart=new Chart(ctx,{ type:'bar', data:{ labels, datasets:[{ label, data:values }] }, options:{ scales:{ y:{ beginAtZero:true, ticks:{ callback:(v)=>v+'%' } } } } }); sink(chart); }
 
 loadData();
 </script>
-</body>
-</html>
+</body></html>
